@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aves | Fine Art Bird Photography</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;600&family=Noto+Serif+JP:wght@200;300;400&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-bg" id="lightbox-close-bg"></div>
+        <div class="lightbox-content">
+            <button class="lightbox-close" id="lightbox-close-btn">×</button>
+            <div class="lb-image-wrap">
+                <button class="lb-nav-btn lb-prev" id="lb-prev">❮</button>
+                <img src="" id="lb-img" alt="Enlarged Bird">
+                <button class="lb-nav-btn lb-next" id="lb-next">❯</button>
+            </div>
+            <div class="lb-info-wrap">
+                <div id="lb-info-inner">
+                    <h2 class="lb-title" id="lb-title">Title</h2>
+                    <div class="card-meta lb-meta">
+                        <img src="" id="lb-avatar" class="author-avatar" alt="">
+                        <div class="meta-text">
+                            <span class="author-name" id="lb-author">Author</span>
+                            <span class="shoot-area" id="lb-location">📍 Location</span>
+                        </div>
+                    </div>
+                    <p class="lb-comment" id="lb-comment">Comment here.</p>
+                    <div class="lb-gear">Equipment<br><span id="lb-gear">Gear here</span></div>
+                    
+                    <div class="lb-reactions">
+                        <p class="reaction-title">Reactions</p>
+                        <div class="reaction-buttons">
+                            <button class="reaction-btn"><span class="icon">📐</span> 構図がすき <span class="count">0</span></button>
+                            <button class="reaction-btn"><span class="icon">🦉</span> この鳥すき <span class="count">0</span></button>
+                            <button class="reaction-btn"><span class="icon">📍</span> 場所いいね <span class="count">0</span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="split-layout">
+        <button class="focus-toggle-btn" id="focus-toggle-btn" aria-label="Toggle Focus Mode" title="Focus Mode">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+        <main class="left-main">
+            <section class="view-section is-active" id="view-gallery">
+                <div class="filter-notice" id="filter-notice">
+                    <div>
+                        <span>Selected Area</span>
+                        <h2 id="filter-area-name">Area</h2>
+                    </div>
+                    <button class="clear-filter-btn" id="clear-filter-btn">Clear Filter x</button>
+                </div>
+
+                <div class="gallery-masonry" id="gallery-container"></div>
+            </section>
+
+            <section class="view-section" id="view-area">
+                <div class="map-wrapper">
+                    <div id="bird-map"></div>
+                </div>
+            </section>
+
+            <nav class="view-toggle">
+                <button class="toggle-btn is-active" data-target="view-gallery" id="btn-gallery">Gallery</button>
+                <button class="toggle-btn" data-target="view-area" id="btn-area">Area</button>
+            </nav>
+        </main>
+
+        <aside class="right-info">
+            <nav class="menu-overlay" id="menu-overlay">
+                <ul class="menu-nav">
+                    <li><a href="#" class="menu-link">Gallery</a></li>
+                    <li><a href="#" class="menu-link">Concept</a></li>
+                    <li><a href="mailto:hello@example.com" class="menu-link">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="info-inner">
+                <div class="info-header">
+                    <a href="#" class="logo">
+                        <img src="bird.svg" class="logo-bird" alt="Aves Bird">
+                        <span class="logo-text">Birding Frame</span>
+                        <span class="logo-sub">FINE ART PHOTOGRAPHY</span>
+                    </a>
+                    <button class="hamburger" id="hamburger-btn" aria-label="Toggle Menu"><span></span><span></span></button>
+                </div>
+                <div class="info-content" id="about">
+                    <h1 class="split-text"><img src="https://images.unsplash.com/photo-1623784248527-65ac5835a5cd?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&fit=crop" style="width:100%; border-radius: 8px;" alt="Concept Cover"/></h1>
+                    <div class="divider"></div>
+                    <p class="fade-text">一瞬の羽ばたき、木漏れ日の中の鮮やかな色彩、<br>そして厳しい自然を生き抜く力強い眼差し。<br>記録ではなく、ひとつの「芸術」として、<br>静寂の中に息づく彼らの美しさを切り取ります。</p>
+                    <div class="gear-info fade-text">Equipment<br><span>SONY α1 / FE 600mm F4 GM OSS</span></div>
+                </div>
+                <div class="info-footer fade-text"><a href="mailto:hello@example.com" class="contact-link">Inquire about prints</a></div>
+            </div>
+        </aside>
+    </div>
+    <a href="mypage.html" class="mypage-fab" aria-label="My Page" title="Go to My Page">
+        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop" alt="My Profile">
+    </a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

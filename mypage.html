@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birding Frame | My Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Montserrat:wght@200;300;400;600&family=Noto+Serif+JP:wght@200;300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="toast" id="toast">Saved Successfully</div>
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-bg" id="lightbox-close-bg"></div>
+        <div class="lightbox-content">
+            <button class="lightbox-close" id="lightbox-close-btn">×</button>
+            <div class="lb-image-wrap">
+                <button class="lb-nav-btn lb-prev" id="lb-prev">❮</button>
+                <img src="" id="lb-img" alt="Enlarged Bird">
+                <button class="lb-nav-btn lb-next" id="lb-next">❯</button>
+            </div>
+            <div class="lb-info-wrap">
+                
+                <div id="lb-info-inner">
+                    <h2 class="lb-title" id="lb-title">Title</h2>
+                    <div class="card-meta lb-meta">
+                        <img src="" id="lb-avatar" class="author-avatar" alt="">
+                        <div class="meta-text">
+                            <span class="author-name" id="lb-author">Author</span>
+                            <span class="shoot-area" id="lb-location">📍 Location</span>
+                        </div>
+                    </div>
+                    <p class="lb-comment" id="lb-comment">Comment here.</p>
+                    <div class="lb-gear">Equipment<br><span id="lb-gear">Gear here</span></div>
+                    
+                    <div class="lb-reactions">
+                        <p class="reaction-title">Reactions</p>
+                        <div class="reaction-buttons">
+                            <button class="reaction-btn"><span class="icon">📐</span> 構図がすき <span class="count">0</span></button>
+                            <button class="reaction-btn"><span class="icon">🦉</span> この鳥すき <span class="count">0</span></button>
+                            <button class="reaction-btn"><span class="icon">📍</span> 場所いいね <span class="count">0</span></button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="lb-review-inner" style="display: none;">
+                    <div style="margin-bottom: 2rem;">
+                        <span style="font-family: 'Montserrat', sans-serif; font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.1em; text-transform: uppercase;">Check Request</span>
+                        <h2 class="lb-title" id="lb-review-title" style="margin-bottom: 0.5rem;">この鳥は「カワセミ」ですか？</h2>
+                        <p style="font-family: 'Noto Sans JP', sans-serif; font-size: 0.85rem; color: #555;">皆さんの知見で評価し、アドバイスがあればコメントをお願いします。</p>
+                    </div>
+                    
+                    <div class="vote-buttons" style="flex-direction: column; gap: 0.8rem; margin-top: 0; margin-bottom: 2rem;">
+                        <button class="btn-vote correct" onclick="selectReviewVote('correct', this)">
+                            <span style="font-size: 1.2rem; margin-right: 0.5rem;">⭕️</span> あっている
+                        </button>
+                        <button class="btn-vote incorrect" onclick="selectReviewVote('incorrect', this)">
+                            <span style="font-size: 1.2rem; margin-right: 0.5rem;">❌</span> 間違っている
+                        </button>
+                        <button class="btn-vote unsure" onclick="selectReviewVote('unsure', this)">
+                            <span style="font-size: 1.2rem; margin-right: 0.5rem;">🤔</span> 評価が難しい
+                        </button>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 2rem;">
+                        <label class="form-label">Feedback Comment</label>
+                        <textarea class="form-control" id="review-comment" placeholder="判定の理由やアドバイスがあれば記入してください..."></textarea>
+                    </div>
+                    
+                    <button class="btn-submit" onclick="submitReviewVote()">Submit Review</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="split-layout">
+            <button class="focus-toggle-btn" id="focus-toggle-btn" aria-label="Toggle Focus Mode" title="Focus Mode">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+        <main class="left-main">
+            <section class="view-section is-active" id="view-gallery">
+                <div class="gallery-tabs" style="margin-bottom: 3rem;">
+                    <button class="gallery-tab-btn is-active" data-filter="all">すべて (All)</button>
+                    <button class="gallery-tab-btn" data-filter="public">公開 (Public)</button>
+                    <button class="gallery-tab-btn" data-filter="private">非公開 (Private)</button>
+                </div>
+                <div class="filter-notice" id="filter-notice">
+                    <div><span>Selected Area</span><h2 id="filter-area-name">Area</h2></div>
+                    <button class="clear-filter-btn" id="clear-filter-btn">Clear Filter x</button>
+                </div>
+                <div class="gallery-masonry" id="my-gallery-container"></div>
+            </section>
+
+            <section class="view-section" id="view-area">
+                <div class="map-wrapper">
+                    <div id="bird-map"></div>
+                </div>
+            </section>
+
+            <nav class="view-toggle">
+                <button class="toggle-btn is-active" data-target="view-gallery">Gallery</button>
+                <button class="toggle-btn" data-target="view-area">Area</button>
+                <button class="toggle-btn" data-target="view-review">Review</button>
+            </nav>
+            <section class="view-section" id="view-review">
+                <div class="review-header">
+                    <div class="review-header-inner">
+                        <span class="sub-title">Community Peer Check</span>
+                        <h2 class="main-title">Pending Reviews</h2>
+                        <p class="description">
+                            公開を待つ作品たち。あなたの審美眼と知見で、野鳥の同定（種類の確認）にご協力ください。
+                        </p>
+                    </div>
+                </div>
+                <div class="gallery-masonry" id="review-gallery-container"></div>
+            </section>
+
+
+        </main>
+
+        <aside class="right-info">
+            <div class="info-inner mypage-dashboard-inner">
+                <div class="info-header" style="margin-bottom: 3rem;">
+                    <a href="#" class="logo">
+                        <img src="bird.svg" class="logo-bird" alt="Aves Bird">
+                        <span class="logo-text">Birding Frame</span>
+                        <span class="logo-sub">FINE ART PHOTOGRAPHY</span>
+                    </a>
+                </div>
+
+                <div class="mypage-tabs">
+                    <button class="mypage-tab-btn" data-tab="tab-gallery" aria-label="Gallery">
+                        <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        <span class="tab-text">Gallery</span>
+                    </button>
+                    <button class="mypage-tab-btn is-active" data-tab="tab-profile" aria-label="Profile">
+                        <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <span class="tab-text">Profile</span>
+                    </button>
+                    <button class="mypage-tab-btn" data-tab="tab-post" aria-label="Post">
+                        <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                        <span class="tab-text">Post</span>
+                    </button>
+                    <button class="mypage-tab-btn" data-tab="tab-activity" aria-label="Activity">
+                        <svg class="tab-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <span class="tab-text">Activity</span>
+                    </button>
+                </div>
+
+                <div class="tab-content is-active" id="tab-profile">
+                    <form onsubmit="event.preventDefault(); showToast('Profile Updated!');">
+                        <div class="form-group">
+                            <label class="form-label">Avatar</label>
+                            <div class="card-meta" style="margin-bottom: 1rem;">
+                                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=150&auto=format&fit=crop" class="author-avatar" style="width: 60px !important; height: 60px !important;" alt="">
+                                <button type="button" style="background: none; border: 1px solid var(--line-color); padding: 0.4rem 1rem; border-radius: 50px; font-family: 'Montserrat'; font-size: 0.7rem; cursor: pointer;">Change Image</button>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nickname</label>
+                            <input type="text" class="form-control" value="Yuki.K">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bio (Comment)</label>
+                            <textarea class="form-control">野鳥の自然な姿に惹かれ、毎週末カメラを担いで森や水辺を歩いています。光と影を活かした表現が好きです。</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Equipment</label>
+                            <input type="text" class="form-control" value="SONY α1 / FE 600mm F4 GM OSS">
+                        </div>
+                        <button type="submit" class="btn-submit">Save Profile</button>
+                    </form>
+                </div>
+
+                <div class="tab-content" id="tab-post">
+                    
+                    <div class="quest-banner" id="quest-banner-btn" style="margin-bottom: 2rem;">
+                        <div class="quest-banner-content">
+                            <h3>Monthly Field Quests</h3>
+                            <p>今月の野鳥探索ミッション</p>
+                            <div class="quest-progress">
+                                <div class="progress-bar-wrap">
+                                    <div class="progress-bar" id="banner-progress-bar"></div>
+                                </div>
+                                <span class="progress-text" id="banner-progress-text">0 / 0</span>
+                            </div>
+                        </div>
+                        <div class="quest-banner-icon">➔</div>
+                    </div>
+                    
+                    <div class="image-upload-area" id="open-new-post-btn">
+                        <div class="icon">＋</div>
+                        <span style="font-size: 1rem; font-weight: 600; color: var(--text-main);">Create New Post</span>
+                        <span>自由に新しい作品を投稿する</span>
+                    </div>
+
+                </div>
+
+                <div class="tab-content" id="tab-activity">
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <span class="activity-meta">2 HOURS AGO</span>
+                            <p class="activity-text">You reacted <span class="badge">📍 場所いいね</span> on Daiki.M's photo <strong>"Predator"</strong>.</p>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-meta">YESTERDAY</span>
+                            <p class="activity-text">You reacted <span class="badge">📐 構図がすき</span> on Kenji.S's photo <strong>"Elegance"</strong>.</p>
+                        </div>
+                        <div class="activity-item">
+                            <span class="activity-meta">3 DAYS AGO</span>
+                            <p class="activity-text">You published a new photo <strong>"Majestic Owl"</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+    </div>
+
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="edit-close-btn">×</button>
+            <h2 class="modal-title">Edit Post</h2>
+            <form id="form-edit" onsubmit="event.preventDefault(); submitEdit();">
+                
+                <div class="form-group">
+                    <label class="form-label">Photo</label>
+                    <div class="edit-image-preview" id="edit-image-preview">
+                        <img src="" id="edit-current-img" alt="Current Photo">
+                        <div class="edit-image-overlay">
+                            <span class="icon">📷</span>
+                            <span>Change Photo</span>
+                        </div>
+                        <input type="file" id="edit-image-input" style="display: none;" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" id="edit-title">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" id="edit-location">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Comment</label>
+                    <textarea class="form-control" id="edit-comment"></textarea>
+                </div>
+                <button type="submit" class="btn-submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="delete-modal">
+        <div class="modal-content" style="text-align: center; padding: 3rem 2rem;">
+            <h2 class="modal-title" style="margin-bottom: 1rem;">Delete Post?</h2>
+            <p style="font-family: 'Montserrat', sans-serif; font-size: 0.9rem; color: var(--text-muted); margin-bottom: 2rem;">This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="delete-cancel-btn">Cancel</button>
+                <button class="btn-danger" id="delete-confirm-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+    <div class="full-screen-overlay" id="quest-overlay">
+        <button class="overlay-close" id="quest-overlay-close">×</button>
+        <div class="overlay-inner">
+            <div class="quest-dashboard-header">
+                <h2>Monthly Field Quests</h2>
+                <p>指定された環境や条件をヒントに野鳥を探し、観察ログを追加しましょう。</p>
+                <div class="quest-progress">
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar" id="quest-progress-bar"></div>
+                    </div>
+                    <span class="progress-text" id="quest-progress-text">0 / 0 Discovered</span>
+                </div>
+            </div>
+            <div class="quest-list" id="quest-list-container"></div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="new-post-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="new-post-close-btn">×</button>
+            <h2 class="modal-title">New Post</h2>
+            
+            <form id="form-new-post" onsubmit="event.preventDefault(); submitNewPost();">
+                <div class="form-group">
+                    <label class="form-label">Photo</label>
+                    <div class="edit-image-preview" id="new-image-preview" data-new-img="">
+                        <img src="" id="new-current-img" style="display: none;" alt="Preview">
+                        <div class="edit-image-overlay" id="new-image-overlay">
+                            <span class="icon">📷</span>
+                            <span>Upload Photo</span>
+                        </div>
+                        <input type="file" id="new-image-input" style="display: none;" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" id="new-post-title" required placeholder="e.g. Morning Bird">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" id="new-post-location" required placeholder="e.g. Yoyogi Park">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Comment / Story</label>
+                    <textarea class="form-control" id="new-post-comment" placeholder="Tell the story behind this shot..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Visibility</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="new-post-visibility" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label" id="new-visibility-label">Public</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn-submit">Publish Post</button>
+            </form>
+        </div>
+    </div>
+    <div class="modal-overlay" id="quest-post-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="quest-post-close-btn">×</button>
+            <h2 class="modal-title" id="quest-post-modal-title">Post Photo</h2>
+            
+            <form id="form-quest-post" onsubmit="event.preventDefault(); submitQuestPost();">
+                <input type="hidden" id="quest-target-id" value="">
+                
+                <div class="form-group">
+                    <label class="form-label">Photo</label>
+                    <div class="edit-image-preview" id="quest-image-preview" data-new-img="">
+                        <img src="" id="quest-current-img" style="display: none;" alt="Preview">
+                        <div class="edit-image-overlay" id="quest-image-overlay">
+                            <span class="icon">📷</span>
+                            <span>Upload Photo</span>
+                        </div>
+                        <input type="file" id="quest-image-input" style="display: none;" accept="image/*">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-control" id="quest-post-title" required placeholder="e.g. Morning Bird">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Location</label>
+                    <input type="text" class="form-control" id="quest-post-location" required placeholder="e.g. Yoyogi Park">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Comment / Story</label>
+                    <textarea class="form-control" id="quest-post-comment" placeholder="Tell the story behind this shot..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Visibility</label>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="quest-post-visibility" checked>
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label" id="quest-visibility-label">Public</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn-submit">Publish & Clear Quest</button>
+            </form>
+        </div>
+    </div>
+    <a href="index.html" class="mypage-fab home-fab" aria-label="Back to Gallery" title="Public Gallery">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+        </svg>
+    </a>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="data.js"></script>
+    <script src="quest-data.js"></script>
+    <script src="mypage.js"></script>
+</body>
+</html>

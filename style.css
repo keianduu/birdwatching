@@ -1,0 +1,914 @@
+/* --- style.css --- */
+:root {
+    --bg-color: #F7F5F0;
+    --text-main: #2C2C2C;
+    --text-muted: #7A7A7A;
+    --line-color: rgba(44, 44, 44, 0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+/* --- style.css --- */
+body { 
+    background-color: var(--bg-color); 
+    color: var(--text-main); 
+    font-family: 'Montserrat', 'Noto Serif JP', sans-serif; 
+    overflow-x: hidden; 
+    -webkit-font-smoothing: antialiased;
+    
+    /* ▼ 追加：スマホでのダブルタップズームを防ぎ、ボタンの反応速度（300msの遅延）を極限まで無くす */
+    touch-action: manipulation; 
+}
+
+/* ▼ 追加：スマホの横スクロール（地図のポップアップ等）に、吸い付くような慣性（スライディング）を持たせる */
+.popup-slider,
+.lb-info-wrap {
+    -webkit-overflow-scrolling: touch;
+}
+h1, h2, h3, .logo { font-family: 'Cormorant Garamond', serif; font-weight: 400; }
+
+.split-layout { display: flex; min-height: 100vh; }
+.left-main { width: 55%; position: relative; }
+
+.view-section { display: none; animation: fadeIn 0.6s ease forwards; }
+.view-section.is-active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+#view-gallery,
+#view-review { padding: 4rem 3rem; min-height: 100vh; }
+
+.filter-notice { display: none; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem; border-bottom: 1px solid var(--line-color); padding-bottom: 1rem; animation: fadeIn 0.4s ease; }
+.filter-notice.is-active { display: flex; }
+.filter-notice h2 { font-size: 1.5rem; }
+.filter-notice span { font-family: 'Montserrat', sans-serif; font-size: 0.8rem; color: var(--text-muted); }
+.clear-filter-btn { background: none; border: none; font-family: 'Montserrat', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-main); cursor: pointer; position: relative; }
+.clear-filter-btn::after { content: ''; position: absolute; width: 100%; height: 1px; bottom: -2px; left: 0; background-color: var(--text-main); transition: opacity 0.3s; }
+.clear-filter-btn:hover::after { opacity: 0; }
+
+.gallery-masonry { column-count: 2; column-gap: 2rem; }
+
+.reveal-wrap { break-inside: avoid; margin-bottom: 2rem; position: relative; cursor: pointer; overflow: hidden; border-radius: 4px; }
+.reveal-mask { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 2; transform-origin: top; }
+.reveal-wrap > img { width: 100%; display: block; transform: scale(1.2); transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.reveal-wrap:hover > img { transform: scale(1.05) !important; }
+
+.image-caption { position: absolute; bottom: 0; left: 0; width: 100%; padding: 40% 1.5rem 1.5rem; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); transition: opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: 5; pointer-events: none; }
+@media (hover: hover) { .image-caption { opacity: 0; transform: translateY(15px); } .reveal-wrap:hover .image-caption { opacity: 1; transform: translateY(0); } }
+@media (hover: none) { .image-caption { opacity: 1; transform: translateY(0); } }
+
+.caption-title { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-style: italic; margin-bottom: 0.8rem; color: #fff; }
+.card-meta { display: flex; align-items: center; gap: 10px; }
+.author-avatar { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid rgba(255,255,255,0.4); flex-shrink: 0; }
+.meta-text { display: flex; flex-direction: column; }
+.author-name { font-size: 0.75rem; font-weight: 600; color: #fff; line-height: 1.2; }
+.shoot-area { font-size: 0.65rem; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+/* Map View */
+.map-wrapper { width: 100%; height: 100vh; position: sticky; top: 0; overflow: hidden; }
+#bird-map { width: 100%; height: 100%; background-color: var(--bg-color); }
+
+.echo-marker { position: relative; width: 100%; height: 100%; }
+.echo-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 40px; height: 40px; border-radius: 50%; background-size: cover; background-position: center; border: 2px solid var(--bg-color); box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 2; }
+.echo-count { position: absolute; top: 0; right: 0; transform: translate(30%, -30%); background-color: var(--text-main); color: var(--bg-color); font-family: 'Montserrat', sans-serif; font-size: 0.65rem; font-weight: 600; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--bg-color); z-index: 3; }
+.echo-pulse { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80px; height: 80px; background-color: rgba(44, 44, 44, 0.15); border-radius: 50%; z-index: 1; pointer-events: none; animation: pulse-ring 2.5s infinite cubic-bezier(0.215, 0.61, 0.355, 1); }
+@keyframes pulse-ring { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(1.1); opacity: 0; } }
+
+/* Map Popup */
+.leaflet-popup-content-wrapper { border-radius: 4px; background: var(--bg-color); color: var(--text-main); box-shadow: 0 15px 35px rgba(0,0,0,0.15); padding: 0; overflow: hidden; }
+.leaflet-popup-content { margin: 15px; width: 280px !important; } 
+.leaflet-popup-tip { background: var(--bg-color); }
+.popup-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
+.custom-popup p { font-family: 'Noto Serif JP', serif; font-size: 0.75rem; color: var(--text-muted); margin: 0; }
+.swipe-hint { font-family: 'Montserrat', sans-serif; font-size: 0.65rem; color: var(--text-muted); animation: swipe-bounce 1.5s infinite; }
+@keyframes swipe-bounce { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(4px); } }
+
+.popup-slider { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; gap: 8px; margin-bottom: 15px; padding-bottom: 6px; }
+.popup-slider::-webkit-scrollbar { height: 3px; display: block; }
+.popup-slider::-webkit-scrollbar-track { background: rgba(0,0,0,0.05); border-radius: 2px; }
+.popup-slider::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 2px; }
+.popup-item { flex: 0 0 85%; scroll-snap-align: start; position: relative; border-radius: 4px; overflow: hidden; cursor: pointer; }
+.popup-item > img { width: 100%; height: 180px; object-fit: cover; display: block; }
+
+.popup-overlay { position: absolute; bottom: 0; left: 0; width: 100%; padding: 3rem 1rem 1rem; background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%); transition: opacity 0.3s ease, transform 0.3s ease; z-index: 5; pointer-events: none; }
+@media (hover: hover) { .popup-overlay { opacity: 0; transform: translateY(10px); } .popup-item:hover .popup-overlay { opacity: 1; transform: translateY(0); } }
+@media (hover: none) { .popup-overlay { opacity: 1; transform: translateY(0); } }
+.popup-overlay h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; margin-bottom: 6px; color: #fff; }
+
+.filter-cta-btn { display: block; width: 100%; padding: 0.8rem 0; background-color: var(--text-main); color: var(--bg-color); font-family: 'Montserrat', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; text-align: center; border: none; border-radius: 2px; cursor: pointer; transition: background-color 0.3s ease; }
+.filter-cta-btn:hover { background-color: #444; }
+
+/* View Toggle Navigation */
+.view-toggle { 
+    position: fixed; bottom: 2rem; left: 27.5%; transform: translateX(-50%); 
+    display: flex; background: rgba(247, 245, 240, 0.85); backdrop-filter: blur(8px); 
+    padding: 0.4rem; border-radius: 50px; border: 1px solid var(--line-color); 
+    z-index: 50; box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    
+    /* ▼ これを1行追加（レイアウト変化に合わせた滑らかな移動） ▼ */
+    transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+}
+.toggle-btn { background: transparent; border: none; padding: 0.6rem 1.5rem; border-radius: 50px; font-family: 'Montserrat', sans-serif; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; transition: all 0.3s ease; }
+.toggle-btn.is-active { background-color: var(--text-main); color: var(--bg-color); }
+
+/* ▼ 改修：右カラム（.right-info）を単独でスクロールできるように設定 ▼ */
+.right-info { 
+    width: 45%; height: 100vh; position: sticky; top: 0; border-left: 1px solid var(--line-color); z-index: 10; 
+    overflow-y: auto; /* インラインスクロールを許可 */
+}
+/* 右カラムのスクロールバーを上品に */
+.right-info::-webkit-scrollbar { width: 4px; }
+.right-info::-webkit-scrollbar-track { background: transparent; }
+.right-info::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+
+/* height: 100% から min-height: 100% に変更し、コンテンツが多い時は自然に伸びるように */
+.info-inner { width: 100%; min-height: 100%; padding: 4rem 5rem; display: flex; flex-direction: column; justify-content: space-between; }
+.info-header { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 20; }
+/* --- style.css 中ほど --- */
+
+/* 変更前 */
+/* .logo { font-size: 2.8rem; letter-spacing: 0.05em; text-decoration: none; color: var(--text-main); line-height: 1; } */
+/* .logo span { display: block; font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 0.3em; margin-top: 0.5rem; color: var(--text-muted); } */
+
+/* ▼ 変更後：鳥を乗せるための構造化スタイル ▼ */
+.logo { 
+    position: relative; /* 鳥を絶対配置するための基準点 */
+    display: inline-block; /* テキストの幅に合わせて枠を収縮させる */
+    text-decoration: none; color: var(--text-main); line-height: 1; 
+}
+.logo-text {
+    font-size: 2.8rem; letter-spacing: 0.05em; display: block;
+}
+.logo-sub {
+    display: block; font-family: 'Montserrat', sans-serif; font-size: 0.6rem; 
+    letter-spacing: 0.3em; margin-top: 0.5rem; color: var(--text-muted);
+}
+
+/* ▼ 追加：鳥のスタイルとアニメーション ▼ */
+/* ▼ 変更：アニメーションの設定を更新 ▼ */
+.logo-bird {
+    position: absolute;
+    bottom: 64%; 
+    left: 40%;    
+    width: 24px;
+    height: auto;
+    color: var(--text-main);
+    
+    /* alternateを外し、往復分として時間を10sに倍増させ、無限ループにする */
+    animation: birdWalkAndTurn 10s ease-in-out infinite;
+    transform-origin: center bottom;
+}
+
+/* ▼ 変更：往復と「振り向き」を完全に制御するキーフレーム ▼ */
+@keyframes birdWalkAndTurn {
+    /* --- 【行き】右を向いたまま進む（scaleX(1)） --- */
+    0% {
+        transform: translateX(0) translateY(0) rotate(0deg) scaleX(1);
+    }
+    16% {
+        transform: translateX(6px) translateY(-2px) rotate(-2deg) scaleX(1);
+    }
+    33% {
+        transform: translateX(12px) translateY(1px) rotate(1deg) scaleX(1);
+    }
+    49.9% {
+        /* 右端に到着（まだ右を向いている） */
+        transform: translateX(18px) translateY(0) rotate(0deg) scaleX(1);
+    }
+
+    /* --- 【ターン】右端で一瞬で左を向く（scaleX(-1)） --- */
+    50% {
+        transform: translateX(18px) translateY(0) rotate(0deg) scaleX(-1);
+    }
+
+    /* --- 【帰り】左を向いたまま戻る（scaleX(-1)） --- */
+    66% {
+        transform: translateX(12px) translateY(-2px) rotate(2deg) scaleX(-1);
+    }
+    83% {
+        transform: translateX(6px) translateY(1px) rotate(-1deg) scaleX(-1);
+    }
+    99.9% {
+        /* 左端に到着（まだ左を向いている） */
+        transform: translateX(0) translateY(0) rotate(0deg) scaleX(-1);
+    }
+
+    /* --- 【ターン】左端で一瞬で右を向く（最初の0%に繋がる） --- */
+    100% {
+        transform: translateX(0) translateY(0) rotate(0deg) scaleX(1);
+    }
+}
+
+/* スマホサイズでの調整 */
+@media (max-width: 600px) {
+    .logo-text { font-size: 2.2rem; }
+    .logo-bird { 
+        width: 20px; 
+        bottom: 62%; /* 文字サイズに合わせて位置を微調整 */
+    }
+}
+.hamburger { width: 40px; height: 12px; background: transparent; border: none; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; margin-top: 0.5rem; }
+.hamburger span { display: block; width: 100%; height: 1px; background-color: var(--text-main); transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 0.4s; transform-origin: center; }
+.hamburger:hover span:nth-child(1) { transform: translateX(5px); }
+.hamburger:hover span:nth-child(2) { transform: translateX(-5px); }
+.hamburger.is-active span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+.hamburger.is-active span:nth-child(2) { transform: translateY(-5.5px) rotate(-45deg); }
+
+.info-content { margin: 2rem 0; }
+.info-content h1 { font-size: 3.5rem; line-height: 1.1; margin-bottom: 2rem; font-style: italic; }
+.divider { width: 0; height: 1px; background-color: var(--line-color); margin: 2rem 0; }
+.info-content p { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; line-height: 2.2; color: #555; }
+.gear-info { margin-top: 3rem; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; }
+.gear-info span { color: var(--text-main); font-weight: 400; }
+
+.info-footer { text-align: left; }
+.contact-link { display: inline-block; font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; color: var(--text-main); text-decoration: none; position: relative; padding-bottom: 0.2rem; }
+.contact-link::after { content: ''; position: absolute; width: 0; height: 1px; bottom: 0; left: 0; background-color: var(--text-main); transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.contact-link:hover::after { width: 100%; }
+
+/* Lightbox (画像拡大ポップアップ) */
+.lightbox { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.4s ease, visibility 0.4s; }
+.lightbox.is-active { opacity: 1; visibility: visible; }
+.lightbox-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(247, 245, 240, 0.85); backdrop-filter: blur(15px); cursor: pointer; }
+.lightbox-content { position: relative; z-index: 2; display: flex; width: 90vw; max-width: 1400px; height: 85vh; background: #fff; box-shadow: 0 30px 60px rgba(0,0,0,0.15); border-radius: 4px; overflow: hidden; transform: translateY(30px); transition: transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.lightbox.is-active .lightbox-content { transform: translateY(0); }
+.lightbox-close { position: absolute; top: 1.5rem; right: 1.5rem; background: var(--bg-color); border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 1.5rem; color: var(--text-main); cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: transform 0.3s ease; }
+.lightbox-close:hover { transform: scale(1.1); }
+
+.lb-image-wrap { position: relative; flex: 1.2; background: #111; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.lb-image-wrap img { width: 100%; height: 100%; object-fit: contain; }
+/* ▼ 変更後：背景なし、巨大な矢印のみ ▼ */
+.lb-nav-btn { 
+    position: absolute; top: 50%; transform: translateY(-50%); 
+    background: transparent; border: none; /* 背景と枠線を削除 */
+    color: rgba(255,255,255,0.4); /* 通常時は少し透過させて主張を抑える */
+    font-size: 3rem; /* 矢印を巨大化 */
+    padding: 2rem; /* クリックしやすいように余白でヒットエリアを広げる */
+    cursor: pointer; z-index: 10; display: flex; align-items: center; justify-content: center; 
+    transition: all 0.3s ease; 
+}
+/* ホバー時にハッキリ白く光る */
+.lb-nav-btn:hover { 
+    color: rgba(255,255,255,1); transform: translateY(-50%) scale(1.1); 
+}
+/* 画面の端に寄せる */
+.lb-prev { left: 0; }
+.lb-next { right: 0; }
+
+.lb-info-wrap { flex: 1; min-width: 350px; max-width: 450px; padding: 4rem 3rem; overflow-y: auto; background: var(--bg-color); display: flex; flex-direction: column; }
+.lb-title { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-style: italic; margin-bottom: 1.5rem; line-height: 1.2; }
+.lb-meta { margin-bottom: 2rem; }
+.lb-meta .author-avatar { border-color: var(--line-color); }
+.lb-meta .author-name { color: var(--text-main); font-size: 0.85rem;}
+.lb-meta .shoot-area { color: var(--text-muted); font-size: 0.75rem;}
+
+.lb-comment { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; line-height: 2; color: #555; margin-bottom: 2.5rem; }
+.lb-gear { margin-bottom: 3rem; font-size: 0.75rem; letter-spacing: 0.1em; color: var(--text-muted); text-transform: uppercase; border-top: 1px solid var(--line-color); padding-top: 1.5rem; }
+.lb-gear span { display: block; margin-top: 0.5rem; color: var(--text-main); font-weight: 400; text-transform: none; }
+
+.reaction-title { font-family: 'Montserrat', sans-serif; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; color: var(--text-main); }
+.reaction-buttons { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+.reaction-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 1rem; border: 1px solid var(--line-color); border-radius: 50px; background: transparent; font-family: 'Noto Sans JP', sans-serif; font-size: 0.8rem; color: #555; cursor: pointer; transition: all 0.3s ease; }
+.reaction-btn:hover { border-color: var(--text-main); color: var(--text-main); background: rgba(0,0,0,0.02); }
+.reaction-btn.is-reacted { background: var(--text-main); color: var(--bg-color); border-color: var(--text-main); }
+.reaction-btn .count { font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 0.75rem; margin-left: 0.2rem; opacity: 0.8; }
+
+/* =========================================
+   My Page & Form Styles
+========================================= */
+.mypage-fab {
+    position: fixed; bottom: 2rem; right: 2rem; width: 50px; height: 50px;
+    border-radius: 50%; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+    z-index: 100; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), box-shadow 0.3s ease;
+    border: 2px solid var(--bg-color); cursor: pointer;
+}
+.mypage-fab:hover { transform: translateY(-5px) scale(1.05); box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+.mypage-fab img { width: 100%; height: 100%; object-fit: cover; }
+
+.mypage-tabs { display: flex; gap: 2.5rem; margin-bottom: 3rem; border-bottom: 1px solid var(--line-color); }
+.mypage-tab-btn { background: none; border: none; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); cursor: pointer; padding-bottom: 1rem; position: relative; transition: color 0.3s; }
+.mypage-tab-btn.is-active { color: var(--text-main); font-weight: 600; }
+.mypage-tab-btn::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 0; height: 1px; background-color: var(--text-main); transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.mypage-tab-btn.is-active::after { width: 100%; }
+
+/* =========================================
+   Home FAB (Back to Public Gallery)
+========================================= */
+.home-fab { 
+    display: flex; align-items: center; justify-content: center; 
+    background: var(--bg-color); /* 背景色に馴染ませる */
+}
+.home-fab svg { 
+    width: 20px; height: 20px; color: var(--text-main); 
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.home-fab:hover svg {
+    transform: scale(1.1); /* ホバー時にアイコンが少し膨らむ心地よいエフェクト */
+}
+
+.tab-content { display: none; animation: fadeUp 0.5s ease forwards; }
+.tab-content.is-active { display: block; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+.form-group { margin-bottom: 2rem; }
+.form-label { display: block; font-family: 'Montserrat', sans-serif; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); margin-bottom: 0.5rem; }
+.form-control { width: 100%; background: transparent; border: none; border-bottom: 1px solid var(--line-color); padding: 0.5rem 0; font-family: 'Noto Serif JP', serif; font-size: 1rem; color: var(--text-main); transition: border-color 0.3s; }
+.form-control:focus { outline: none; border-color: var(--text-main); }
+textarea.form-control { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+.image-upload-area { border: 1px dashed var(--line-color); border-radius: 4px; padding: 2.5rem; text-align: center; cursor: pointer; transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; gap: 0.8rem; }
+.image-upload-area:hover { background: rgba(0,0,0,0.02); border-color: var(--text-main); }
+.image-upload-area .icon { font-size: 2rem; color: var(--text-muted); }
+.image-upload-area span { font-family: 'Montserrat', sans-serif; font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.05em; }
+
+.toggle-switch { display: flex; align-items: center; gap: 1rem; cursor: pointer; }
+.toggle-switch input { display: none; }
+.toggle-slider { width: 44px; height: 24px; background-color: var(--line-color); border-radius: 20px; position: relative; transition: background-color 0.3s; }
+.toggle-slider::before { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background-color: #fff; border-radius: 50%; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+.toggle-switch input:checked + .toggle-slider { background-color: var(--text-main); }
+.toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+.toggle-label { font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 600; }
+
+.btn-submit { display: inline-block; width: 100%; padding: 1.2rem; background-color: var(--text-main); color: var(--bg-color); font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; border: none; border-radius: 2px; cursor: pointer; transition: background-color 0.3s ease, transform 0.2s ease; margin-top: 1rem; }
+.btn-submit:hover { background-color: #444; transform: translateY(-2px); }
+
+.activity-list { padding-left: 1rem; border-left: 1px solid var(--line-color); }
+.activity-item { position: relative; margin-bottom: 2.5rem; padding-left: 2rem; }
+.activity-item::before { content: ''; position: absolute; left: -1.5rem; top: 0.4rem; transform: translateX(-50%); width: 11px; height: 11px; background-color: var(--bg-color); border-radius: 50%; border: 2px solid var(--text-main); }
+.activity-meta { font-family: 'Montserrat', sans-serif; font-size: 0.65rem; color: var(--text-muted); margin-bottom: 0.5rem; display: block; letter-spacing: 0.05em; }
+.activity-text { font-family: 'Noto Serif JP', serif; font-size: 0.95rem; line-height: 1.6; color: var(--text-main); }
+.activity-text strong { font-weight: 600; }
+.activity-text .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; border: 1px solid var(--line-color); font-size: 0.7rem; color: var(--text-muted); margin-left: 0.5rem; }
+
+.toast { position: fixed; bottom: 3rem; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text-main); color: var(--bg-color); padding: 1rem 3rem; border-radius: 50px; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; opacity: 0; visibility: hidden; z-index: 9999; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+.toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+
+/* レスポンシブ用メニュー＆スマホ最適化 */
+.menu-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--bg-color); z-index: 10; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: opacity 0.5s ease, visibility 0.5s; }
+.menu-overlay.is-active { opacity: 1; visibility: visible; }
+.menu-nav { list-style: none; text-align: center; }
+.menu-nav li { margin-bottom: 2rem; overflow: hidden; }
+.menu-nav a { font-family: 'Cormorant Garamond', serif; font-size: 3.5rem; color: var(--text-main); text-decoration: none; display: block; transform: translateY(100%); transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.3s; }
+.menu-nav a:hover { color: var(--text-muted); font-style: italic; }
+.menu-overlay.is-active .menu-nav a { transform: translateY(0); }
+
+@media (max-width: 1024px) {
+    .split-layout { 
+        flex-direction: column-reverse; 
+        justify-content: flex-end !important; /* ← これを追加！配置を上に強制する */
+    }
+    .left-main { width: 100%; }
+    
+    #view-gallery, #view-review { padding: 0rem 2rem; }
+    
+    .right-info { width: 100%; height: auto; position: relative; border-left: none; border-bottom: 1px solid var(--line-color); overflow-y: visible; }
+    
+    .view-toggle { left: 50%; bottom: 1.5rem; }
+    
+    /* ▼ 改修：スマホ時のFABボタンをナビゲーションの上に配置 ▼ */
+    .mypage-fab {
+        bottom: 5.5rem; 
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+    .mypage-fab:hover { transform: translateX(-50%) translateY(-5px) scale(1.05); }
+
+    .menu-overlay { position: fixed; width: 100vw; height: 100vh; z-index: 90; }
+    .info-header { z-index: 100; }
+    .info-inner { padding: 4rem 2rem; }
+    .info-content h1 { font-size: 2.5rem; }
+    .menu-nav a { font-size: 3rem; }
+    
+    /* ▼ ここから：SP用 Lightbox（シアターモード） ▼ */
+    .lightbox-content { 
+        display: block; /* フレックスを解除して縦スクロール可能に */
+        width: 100vw; height: 100vh; border-radius: 0; 
+        background: #080808; /* 没入感を高める漆黒の背景 */
+        overflow-y: auto; overflow-x: hidden;
+        /* ふわっと浮き出るのではなく、下からスライドインするアプリ的挙動 */
+        transform: translateY(100%); 
+        transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .lightbox.is-active .lightbox-content { transform: translateY(0); }
+    
+    .lb-image-wrap { 
+        display: block; width: 100%; height: auto; min-height: 50vh; 
+        background: transparent; padding-top: 4rem; /* 閉じるボタンと被らないための余白 */
+    }
+    .lb-image-wrap img { 
+        /* 余白を無くし、画面幅または高さの限界まで写真を拡大 */
+        width: 100%; height: auto; max-height: 75vh; object-fit: contain; 
+    }
+    
+    /* ▼ 情報エリアのダークモード最適化 ▼ */
+    .lb-info-wrap { 
+        width: 100%; height: auto; padding: 2rem 1.5rem 6rem; 
+        background: transparent; color: #fff; 
+    }
+    .lb-title { color: #fff; font-size: 1.8rem; margin-bottom: 1rem; }
+    .lb-meta .author-name { color: #fff; }
+    .lb-meta .shoot-area { color: rgba(255,255,255,0.7); }
+    .lb-comment { color: rgba(255,255,255,0.85); }
+    .lb-gear { border-top-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); }
+    .lb-gear span { color: #fff; }
+    
+    .reaction-title { color: #fff; }
+    .reaction-btn { color: #fff; border-color: rgba(255,255,255,0.3); }
+    .reaction-btn:hover { background: rgba(255,255,255,0.1); border-color: #fff; color: #fff; }
+    /* いいね済みは白く光らせる */
+    .reaction-btn.is-reacted { background: #fff; color: #080808; border-color: #fff; }
+
+    /* ▼ 操作系ボタンをスクロールに関係なく画面に固定（Fixed） ▼ */
+    .lightbox-close { 
+        position: fixed; top: 1rem; right: 1rem; width: 36px; height: 36px; 
+        background: rgba(255,255,255,0.1); color: #fff; backdrop-filter: blur(8px);
+        border: 1px solid rgba(255,255,255,0.2); z-index: 50; font-size: 1.2rem;
+    }
+    .lb-nav-btn { 
+        position: fixed; top: 50%; /* 画面中央に戻す */
+        /* PC側のスタイル(巨大な矢印、背景なし)が継承されるので、ここでは位置指定だけでOK */
+    }
+    /* スマホは画面端ギリギリだとタップしづらいので、わずかに内側へ */
+    .lb-prev { left: -0.5rem; } 
+    .lb-next { right: -0.5rem; }
+}
+@media (max-width: 600px) {
+    .gallery-masonry { column-count: 1; }
+    .logo { font-size: 2.2rem; }
+    .info-content h1 { font-size: 2rem; }
+}
+
+/* --- style.css (既存コードの末尾に追加) --- */
+
+/* =========================================
+   My Page Actions & Modals
+========================================= */
+.mypage-meta { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; }
+.action-buttons { display: flex; gap: 0.5rem; }
+
+/* ▼ 改修：テキストボタンから、丸いアイコンボタンへのスタイル変更 ▼ */
+.action-btn { 
+    background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.3); color: #fff; 
+    width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(4px); padding: 0;
+    pointer-events: auto; /* ★これを追加することでクリック可能になります！★ */
+}
+.action-btn svg { width: 15px; height: 15px; }
+.action-btn:hover { background: #fff; color: #000; transform: translateY(-2px); }
+.action-btn.btn-delete:hover { background: #e03131; color: #fff; border-color: #e03131; }
+
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: 0.3s ease; }
+.modal-overlay.is-active { opacity: 1; visibility: visible; }
+.modal-content { background: var(--bg-color); width: 90%; max-width: 500px; padding: 3rem; border-radius: 4px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); color: var(--text-main); position: relative; }
+.modal-overlay.is-active .modal-content { transform: translateY(0); }
+.modal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-style: italic; margin-bottom: 2rem; }
+.modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); transition: color 0.3s; }
+.modal-close:hover { color: var(--text-main); }
+
+.modal-actions { display: flex; gap: 1rem; margin-top: 2rem; }
+.btn-cancel { flex: 1; padding: 1rem; background: transparent; border: 1px solid var(--line-color); color: var(--text-main); font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.3s; border-radius: 2px; }
+.btn-cancel:hover { background: rgba(0,0,0,0.05); }
+.btn-danger { flex: 1; padding: 1rem; background: #e03131; border: none; color: #fff; font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.3s; border-radius: 2px; }
+.btn-danger:hover { background: #c92a2a; transform: translateY(-2px); }
+
+/* --- style.css の一番下に追加 --- */
+
+/* 編集用モーダルの画像プレビューエリア */
+.edit-image-preview { 
+    position: relative; border-radius: 4px; overflow: hidden; height: 180px; 
+    background: #000; cursor: pointer; transition: all 0.3s ease; 
+}
+.edit-image-preview img { 
+    width: 100%; height: 100%; object-fit: cover; opacity: 0.5; transition: opacity 0.3s ease; 
+}
+.edit-image-preview:hover img { opacity: 0.3; }
+.edit-image-overlay { 
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+    color: #fff; font-family: 'Montserrat', sans-serif; font-size: 0.75rem; 
+    font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; 
+    display: flex; flex-direction: column; align-items: center; gap: 0.5rem; 
+    pointer-events: none; 
+}
+.edit-image-overlay .icon { font-size: 1.5rem; }
+
+/* =========================================
+   Quest Tab Styles
+========================================= */
+.quest-dashboard-header { margin-bottom: 2rem; }
+.quest-dashboard-header h2 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.5rem; }
+.quest-dashboard-header p { font-family: 'Noto Serif JP', serif; font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+.quest-progress { margin-top: 1.5rem; display: flex; align-items: center; gap: 1rem; }
+.progress-bar-wrap { flex: 1; height: 3px; background: var(--line-color); border-radius: 2px; overflow: hidden; }
+.progress-bar { height: 100%; background: var(--text-main); width: 0%; transition: width 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.progress-text { font-family: 'Montserrat', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; }
+
+
+.quest-card { border: 1px solid var(--line-color); border-radius: 4px; padding: 1.5rem; background: transparent; transition: box-shadow 0.3s ease, transform 0.3s ease; display: flex; flex-direction: column; }
+.quest-card:hover { background: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transform: translateY(-2px); }
+
+.quest-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.5rem; }
+.quest-icon { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line-color); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--text-main); }
+.quest-icon svg { width: 18px; height: 18px; }
+.quest-title-wrap { flex: 1; }
+.quest-name { font-family: 'Noto Serif JP', serif; font-size: 1.1rem; font-weight: 600; margin-bottom: 0.2rem; }
+.quest-env { font-family: 'Noto Sans JP', sans-serif; font-size: 0.7rem; color: var(--text-muted); }
+.quest-difficulty { font-family: 'Noto Sans JP', sans-serif; font-size: 0.65rem; font-weight: 600; padding: 0.3rem 0.8rem; border-radius: 50px; border: 1px solid var(--line-color); white-space: nowrap; }
+.quest-difficulty.rare { border-color: #d4af37; color: #d4af37; } /* チャレンジ枠のアクセントカラー */
+
+.quest-photo-frame { width: 100%; aspect-ratio: 16 / 9; border-radius: 4px; border: 1px dashed var(--line-color); background: rgba(0,0,0,0.02); margin-bottom: 1.5rem; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+.quest-placeholder svg { width: 40px; height: 40px; opacity: 0.15; color: var(--text-main); }
+.quest-card.is-discovered .quest-photo-frame { border-style: solid; border-color: transparent; }
+.quest-card.is-discovered .quest-photo-frame img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.quest-card.is-discovered:hover .quest-photo-frame img { transform: scale(1.05); }
+
+.quest-body { flex: 1; display: flex; flex-direction: column; }
+.quest-status-badges { display: flex; gap: 0.5rem; margin-bottom: 1rem; }
+.badge-status { font-family: 'Noto Sans JP', sans-serif; font-size: 0.65rem; font-weight: bold; padding: 0.2rem 0.6rem; border-radius: 2px; border: 1px solid var(--text-main); color: var(--text-main); }
+.quest-card.is-discovered .badge-status { background: var(--text-main); color: var(--bg-color); }
+.badge-hint { font-family: 'Noto Sans JP', sans-serif; font-size: 0.65rem; padding: 0.2rem 0.6rem; border-radius: 2px; border: 1px solid var(--line-color); color: var(--text-muted); }
+
+.quest-hints { list-style: none; margin-bottom: 1.5rem; flex: 1; }
+.quest-hints li { font-family: 'Noto Serif JP', serif; font-size: 0.8rem; color: #555; line-height: 1.6; position: relative; padding-left: 1rem; margin-bottom: 0.4rem; }
+.quest-hints li::before { content: '・'; position: absolute; left: 0; top: 0; color: var(--text-muted); }
+
+.btn-quest-log { width: 100%; padding: 0.8rem; background: transparent; border: 1px solid var(--text-main); color: var(--text-main); font-family: 'Montserrat', sans-serif; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; transition: all 0.3s ease; cursor: pointer; border-radius: 2px; }
+.btn-quest-log:hover { background: var(--text-main); color: var(--bg-color); }
+.quest-card.is-discovered .btn-quest-log { opacity: 0.4; pointer-events: none; border-color: var(--line-color); color: var(--text-muted); }
+
+.quest-note { font-family: 'Noto Sans JP', sans-serif; font-size: 0.65rem; color: var(--text-muted); margin-top: 1rem; text-align: left; opacity: 0.7; }
+
+/* =========================================
+   Gallery Visibility Filters (My Page)
+========================================= */
+.gallery-visibility-filters { display: flex; gap: 0.8rem; }
+.visibility-filter-btn { 
+    background: transparent; border: 1px solid var(--line-color); 
+    padding: 0.6rem 1.5rem; border-radius: 50px; 
+    font-family: 'Montserrat', 'Noto Sans JP', sans-serif; font-size: 0.75rem; font-weight: 600;
+    letter-spacing: 0.05em; color: var(--text-muted); 
+    cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+}
+.visibility-filter-btn.is-active { 
+    background: var(--text-main); color: var(--bg-color); border-color: var(--text-main); 
+}
+.visibility-filter-btn:hover:not(.is-active) { 
+    background: rgba(0,0,0,0.03); color: var(--text-main); 
+}
+
+/* =========================================
+   Gallery Tabs (My Page)
+========================================= */
+.gallery-tabs { 
+    display: flex; gap: 2.5rem; border-bottom: 1px solid var(--line-color); 
+}
+.gallery-tab-btn { 
+    background: none; border: none; padding-bottom: 1rem; position: relative;
+    font-family: 'Montserrat', 'Noto Sans JP', sans-serif; font-size: 0.8rem; font-weight: 400;
+    letter-spacing: 0.05em; color: var(--text-muted); cursor: pointer; transition: color 0.3s;
+}
+.gallery-tab-btn.is-active { 
+    color: var(--text-main); font-weight: 600; 
+}
+/* ホバー時＆アクティブ時に伸びるアンダーライン */
+.gallery-tab-btn::after { 
+    content: ''; position: absolute; bottom: -1px; left: 0; width: 0; height: 1px; 
+    background-color: var(--text-main); transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+}
+.gallery-tab-btn.is-active::after { 
+    width: 100%; 
+}
+.gallery-tab-btn:hover:not(.is-active) {
+    color: var(--text-main);
+}
+
+/* =========================================
+   Quest Banner & Full Screen Overlay
+========================================= */
+/* バナーのスタイル */
+.quest-banner { 
+    background: transparent; border: 1px solid var(--text-main); border-radius: 4px; 
+    padding: 1.5rem; display: flex; align-items: center; justify-content: space-between; 
+    cursor: pointer; transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+    margin-bottom: 2.5rem; position: relative; overflow: hidden;
+}
+.quest-banner::before {
+    content: ''; position: absolute; top: 0; left: 0; width: 0%; height: 100%;
+    background: var(--text-main); transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); z-index: -1;
+}
+.quest-banner:hover::before { width: 100%; }
+.quest-banner:hover { box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-color: transparent; }
+.quest-banner:hover h3, .quest-banner:hover p, .quest-banner:hover .quest-banner-icon, .quest-banner:hover .progress-text { color: var(--bg-color); }
+.quest-banner:hover .progress-bar-wrap { background: rgba(255,255,255,0.2); }
+.quest-banner:hover .progress-bar { background: var(--bg-color); }
+
+.quest-banner-content { flex: 1; padding-right: 2rem; pointer-events: none; }
+.quest-banner h3 { font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 0.2rem; transition: color 0.4s; }
+.quest-banner p { font-family: 'Noto Serif JP', serif; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 1rem; transition: color 0.4s; }
+.quest-banner-icon { font-size: 1.2rem; color: var(--text-main); transition: all 0.4s ease; pointer-events: none; }
+.quest-banner:hover .quest-banner-icon { transform: translateX(5px); }
+
+/* 全画面オーバーレイのスタイル */
+.full-screen-overlay { 
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+    background: var(--bg-color); z-index: 9900; overflow-y: auto; 
+    transform: translateY(100%); transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+}
+.full-screen-overlay.is-active { transform: translateY(0); }
+.overlay-close { 
+    position: fixed; top: 2rem; right: 2rem; width: 44px; height: 44px; 
+    border-radius: 50%; background: transparent; border: 1px solid var(--line-color); 
+    font-size: 1.5rem; color: var(--text-main); display: flex; align-items: center; justify-content: center; 
+    cursor: pointer; z-index: 10; transition: transform 0.3s, background 0.3s; 
+}
+.overlay-close:hover { transform: scale(1.1); background: #fff; }
+/* =========================================
+   Quest Tab Styles (一部書き換え)
+========================================= */
+
+/* ▼ 変更：カードが3枚並んでも美しく見えるよう、最大幅を拡張 ▼ */
+.overlay-inner { 
+    max-width: 1100px; /* 800px から 1100px に変更 */
+    margin: 0 auto; 
+    padding: 6rem 2rem; 
+}
+
+/* ▼ 変更：3カラムのグリッドレイアウトへ進化 ▼ */
+.quest-list { 
+    display: grid; 
+    grid-template-columns: repeat(3, 1fr); /* PCでは3列 */
+    gap: 2.5rem; /* カード間の余白を少し広げて上品に */
+    padding-bottom: 4rem; 
+}
+
+/* 既存の .quest-card などのスタイルはそのまま残してください */
+
+
+/* ▼ 追加：タブレットとスマホ用のレスポンシブ設定 ▼ */
+@media (max-width: 1024px) {
+    .quest-list {
+        grid-template-columns: repeat(2, 1fr); /* タブレットサイズでは2列 */
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .quest-list {
+        grid-template-columns: 1fr; /* スマホサイズでは1列（SPサイズと同じ見え方） */
+        gap: 1.5rem;
+    }
+    .overlay-inner { 
+        padding: 5rem 1.5rem; /* スマホ時は余白を少し詰める */
+    }
+}
+/* =========================================
+   My Page Dashboard Layout Fix
+========================================= */
+/* ▼ 1. コンテンツ量による縦揺れ（ガタつき）を完全に防止 ▼ */
+.mypage-dashboard-inner {
+    justify-content: flex-start;
+}
+
+/* ▼ 2. ナビゲーションタブの追従（スティッキー）化 ▼ */
+.mypage-tabs {
+    position: sticky;
+    top: -1px; /* スクロール時にピタッと吸着 */
+    background: var(--bg-color); /* スクロール時に背面に回ったテキストを隠す */
+    padding-top: 1rem; /* 吸着時の上部余白 */
+    z-index: 30; /* 常に前面に出す */
+    
+    /* ※ border-bottom や gap などの既存スタイルはそのまま維持されます */
+}
+
+/* =========================================
+   Focus Mode (Collapse Right Sidebar)
+========================================= */
+/* レイアウトの滑らかなトランジション */
+.split-layout { transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; }
+.left-main { transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+.right-info { transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.3s; overflow: hidden; border-left: 1px solid var(--line-color); }
+
+@media (min-width: 1025px) {
+    .right-info .info-inner { width: 45vw; transition: opacity 0.3s; }
+
+    /* フォーカスモード（折りたたみ）時の状態 */
+    .split-layout.is-focused .left-main { width: 100%; }
+    .split-layout.is-focused .right-info { width: 0; opacity: 0; border-left-color: transparent; }
+    .split-layout.is-focused .right-info .info-inner { opacity: 0; pointer-events: none; }
+    
+    /* ▼ これを1行追加（全画面時は中央に配置） ▼ */
+    .split-layout.is-focused .view-toggle { left: 50%; }
+}
+
+/* 境界線に配置する開閉トグルボタン */
+.focus-toggle-btn {
+    position: fixed;
+    top: 50%;
+    right: 45%; /* 通常時：境界線の上 */
+    transform: translateY(-50%) translateX(50%);
+    width: 24px;
+    height: 60px;
+    background: var(--bg-color);
+    border: 1px solid var(--line-color);
+    border-radius: 4px 0 0 4px; /* 左側だけ角丸 */
+    border-right: none;
+    z-index: 90;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    transition: right 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94), color 0.3s, background 0.3s;
+    box-shadow: -2px 0 10px rgba(0,0,0,0.02);
+}
+.focus-toggle-btn:hover { color: var(--text-main); background: #fff; }
+.focus-toggle-btn svg { width: 14px; height: 14px; transition: transform 0.4s ease; }
+
+/* フォーカスモード時のボタン（画面右端に張り付く＆矢印の向きが反転する） */
+.split-layout.is-focused .focus-toggle-btn {
+    right: 0;
+    transform: translateY(-50%) translateX(0);
+    border-right: 1px solid var(--line-color);
+}
+.split-layout.is-focused .focus-toggle-btn svg {
+    transform: rotate(180deg);
+}
+
+/* スマホ表示時はボタンを隠す */
+@media (max-width: 1024px) {
+    .focus-toggle-btn { display: none; }
+}
+/* =========================================
+   Review View & Vote Modal
+========================================= */
+.vote-buttons { display: flex; gap: 1rem; margin-top: 2rem; }
+.btn-vote { 
+    flex: 1; padding: 1.2rem 0.5rem; border: 1px solid var(--line-color); border-radius: 6px; 
+    background: transparent; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+    font-family: 'Noto Sans JP', sans-serif; font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+}
+/* ホバー時の洗練されたカラー変化 */
+.btn-vote.correct:hover { background: #EBFBEE; border-color: #40C057; color: #2B8A3E; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(64, 192, 87, 0.2); }
+.btn-vote.incorrect:hover { background: #FFF5F5; border-color: #FA5252; color: #C92A2A; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(250, 82, 82, 0.2); }
+.btn-vote.unsure:hover { background: #FFF9DB; border-color: #FCC419; color: #E67700; transform: translateY(-3px); box-shadow: 0 5px 15px rgba(252, 196, 25, 0.2); }
+
+/* レビュー画像のホバーエフェクト（キャプションなし・ズームのみ） */
+.review-trigger .reveal-mask { background-color: var(--bg-color); }
+
+/* =========================================
+   Review Header (Editorial Design)
+========================================= */
+.review-header {
+    margin-bottom: 4rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid var(--line-color);
+    position: relative;
+    animation: fadeIn 0.6s ease;
+}
+
+/* 左側に引く、エレガントなアクセントライン */
+.review-header::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 40px;
+    background-color: var(--text-main); 
+}
+
+.review-header-inner {
+    padding-left: 1.5rem; /* ラインとの間に美しい余白を作る */
+}
+
+.review-header .sub-title {
+    display: block;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+}
+
+.review-header .main-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 3.2rem;
+    font-style: italic;
+    line-height: 1;
+    margin-bottom: 1.2rem;
+    color: var(--text-main);
+}
+
+.review-header .description {
+    font-family: 'Noto Serif JP', serif;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    color: #666;
+    max-width: 80%; /* 文字が横に広がりすぎないように制御 */
+}
+
+/* =========================================
+   Review View & Vote Modal (Lightbox Integration)
+========================================= */
+/* ボタン内のアイコンとテキストを綺麗に横並びにする */
+.btn-vote { 
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* 選択された状態（Active State）のスタイル */
+.btn-vote.correct.is-selected { background: #EBFBEE; border-color: #40C057; color: #2B8A3E; box-shadow: 0 5px 15px rgba(64, 192, 87, 0.2); }
+.btn-vote.incorrect.is-selected { background: #FFF5F5; border-color: #FA5252; color: #C92A2A; box-shadow: 0 5px 15px rgba(250, 82, 82, 0.2); }
+.btn-vote.unsure.is-selected { background: #FFF9DB; border-color: #FCC419; color: #E67700; box-shadow: 0 5px 15px rgba(252, 196, 25, 0.2); }
+
+/* =========================================
+   My Page Tabs (Responsive Icons)
+========================================= */
+/* PCでのデフォルト設定：アイコンは隠し、文字だけの美しいタイポグラフィを維持 */
+.tab-icon {
+    display: none;
+    width: 22px;
+    height: 22px;
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@media (max-width: 1024px) {
+    /* スマホ・タブレット時はアプリライクなアイコンタブに切り替え */
+    .mypage-tabs {
+        justify-content: space-between; /* 隙間を無くして均等に配置 */
+        gap: 0;
+    }
+    .mypage-tab-btn {
+        flex: 1; /* 3つのボタンで画面幅を均等割り（33.3%ずつ） */
+        display: flex;
+        justify-content: center;
+        padding-bottom: 1.2rem;
+    }
+    .tab-text {
+        display: none; /* スマホでは文字を消す */
+    }
+    .tab-icon {
+        display: block; /* アイコンを出現させる */
+    }
+    /* マイクロインタラクション：選択されているタブのアイコンが少し大きくなる */
+    .mypage-tab-btn.is-active .tab-icon {
+        transform: scale(1.15);
+    }
+}
+/* =========================================
+   Mobile SPA Mode (Dynamic Tab Switching)
+========================================= */
+/* PC表示ではギャラリー用タブは不要なので完全に隠す */
+.mypage-tab-btn[data-tab="tab-gallery"] {
+    display: none !important;
+}
+
+@media (max-width: 1024px) {
+    /* スマホ表示では4つのアイコンを均等に並べる */
+    .mypage-tab-btn[data-tab="tab-gallery"] {
+        display: flex !important;
+    }
+    
+    /* [状態1] ギャラリータブを選択中：右カラムのコンテンツ(Profile等)を隠す */
+    body[data-active-sp-tab="tab-gallery"] .tab-content {
+        display: none !important;
+    }
+    
+/* --- 変更後 --- */
+/* [状態2] ギャラリー以外(Profile等)を選択中：ギャラリー本体、下部ナビ、FAB(ホームボタン)を隠す */
+body[data-active-sp-tab]:not([data-active-sp-tab="tab-gallery"]) .view-section,
+body[data-active-sp-tab]:not([data-active-sp-tab="tab-gallery"]) .view-toggle,
+body[data-active-sp-tab]:not([data-active-sp-tab="tab-gallery"]) .home-fab {
+    display: none !important;
+}
+    /* ※ .left-main 全体ではなく .view-section のみを隠すことで、
+       画面下部のフローティングナビ(Gallery/Area/Review)は常に表示され続けます */
+}
+
+/* =========================================
+   Mobile UI Refinement (Header & Tabs)
+========================================= */
+@media (max-width: 1024px) {
+    /* 1. 上下・左のボーダーを完全に消す（左線が残るバグを解消） */
+    .right-info {
+        border-bottom: none !important;
+        border-top: none !important;
+        border-left: none !important; /* ← 新規追加：左の線を強制リセット */
+    }
+    
+    /* 2. コンテンツ量によるロゴの縦揺れを防ぎ、常に上部固定にする */
+    .info-inner {
+        padding-top: 1.8rem !important; 
+        padding-bottom: 1rem !important;
+        justify-content: flex-start !important; /* ← 新規追加：要素を上詰めに強制 */
+    }
+    
+    /* 3. ロゴとアイコンタブの間の余白を狭くする */
+    .info-header {
+        margin-bottom: 1.5rem !important; 
+    }
+
+    /* 4. アイコンタブと、その下のコンテンツの間の余白を狭くする */
+    .mypage-tabs {
+        margin-bottom: 1.5rem !important; 
+    }
+}
