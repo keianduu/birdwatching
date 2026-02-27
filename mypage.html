@@ -101,23 +101,28 @@
                 </div>
             </section>
 
-            <nav class="view-toggle">
-                <button class="toggle-btn is-active" data-target="view-gallery">Gallery</button>
-                <button class="toggle-btn" data-target="view-area">Area</button>
-                <button class="toggle-btn" data-target="view-review">Review</button>
-            </nav>
-            <section class="view-section" id="view-review">
-                <div class="review-header">
-                    <div class="review-header-inner">
-                        <span class="sub-title">Community Peer Check</span>
-                        <h2 class="main-title">Pending Reviews</h2>
-                        <p class="description">
-                            公開を待つ作品たち。あなたの審美眼と知見で、野鳥の同定（種類の確認）にご協力ください。
-                        </p>
-                    </div>
+            <div class="bottom-floating-wrapper">
+                
+                <nav class="view-toggle">
+                    <button class="capsule-btn" data-filter="pickup">Pickup</button>
+                    <button class="capsule-btn" data-filter="timeline">Timeline</button>
+                    <button class="capsule-btn is-active" data-filter="mypost">My Post</button>
+                </nav>
+
+                <div class="view-mode-capsule">
+                    <button class="view-mode-btn is-active" data-target="view-gallery" title="Gallery View">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </button>
+                    <button class="view-mode-btn" data-target="view-area" title="Map View">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line>
+                        </svg>
+                    </button>
                 </div>
-                <div class="gallery-masonry" id="review-gallery-container"></div>
-            </section>
+
+            </div>
 
 
         </main>
@@ -125,7 +130,7 @@
         <aside class="right-info">
             <div class="info-inner mypage-dashboard-inner">
                 <div class="info-header" style="margin-bottom: 3rem;">
-                    <a href="#" class="logo">
+                    <a href="index.html" class="logo">
                         <img src="bird.svg" class="logo-bird" alt="Aves Bird">
                         <span class="logo-text">Birding Frame</span>
                         <span class="logo-sub">FINE ART PHOTOGRAPHY</span>
@@ -260,16 +265,18 @@
     </a>
 
     <div class="modal-overlay" id="universal-post-modal">
-        <div class="modal-content">
+        <div class="modal-content compact-modal">
             <button class="modal-close" id="universal-close-btn">×</button>
             <h2 class="modal-title" id="universal-modal-title">Post Photo</h2>
             
             <form id="form-universal-post" onsubmit="event.preventDefault(); submitUniversalPost();">
-                <input type="hidden" id="universal-mode" value="new"> <input type="hidden" id="universal-target-id" value=""> <div class="form-group">
+                <input type="hidden" id="universal-mode" value="new">
+                <input type="hidden" id="universal-target-id" value="">
+                <input type="hidden" id="universal-post-title-hidden" value=""> <div class="form-group compact-group">
                     <label class="form-label">Photo</label>
-                    <div class="edit-image-preview" id="universal-image-preview" data-new-img="">
+                    <div class="edit-image-preview light-theme" id="universal-image-preview" data-new-img="">
                         <img src="" id="universal-current-img" style="display: none;" alt="Preview">
-                        <div class="edit-image-overlay" id="universal-image-overlay">
+                        <div class="edit-image-overlay dark-text" id="universal-image-overlay">
                             <span class="icon">📷</span>
                             <span id="universal-image-text">Upload Photo</span>
                         </div>
@@ -277,29 +284,41 @@
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label">Title</label>
-                    <input type="text" class="form-control" id="universal-post-title" required placeholder="e.g. Morning Bird">
-                </div>
-                <div class="form-group">
+                <div class="form-group compact-group">
                     <label class="form-label">Location</label>
-                    <input type="text" class="form-control" id="universal-post-location" required placeholder="e.g. Yoyogi Park">
+                    <div style="display: flex; gap: 0.5rem;">
+                        <select class="form-control" id="universal-post-pref">
+                            <option value="">都道府県 (任意)</option>
+                            <option value="東京都">東京都</option>
+                            <option value="神奈川県">神奈川県</option>
+                            <option value="埼玉県">埼玉県</option>
+                            <option value="千葉県">千葉県</option>
+                        </select>
+                        <select class="form-control" id="universal-post-city">
+                            <option value="">市区町村 (任意)</option>
+                            <option value="新宿区">新宿区</option>
+                            <option value="渋谷区">渋谷区</option>
+                            <option value="武蔵野市">武蔵野市</option>
+                            <option value="八王子市">八王子市</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Comment / Story</label>
-                    <textarea class="form-control" id="universal-post-comment" placeholder="Tell the story behind this shot..."></textarea>
+
+                <div class="form-group compact-group">
+                    <label class="form-label">Memo</label>
+                    <textarea class="form-control" id="universal-post-comment" placeholder="観察メモを残す..." style="min-height: 60px;"></textarea>
                 </div>
                 
-                <div class="form-group" id="universal-visibility-group">
+                <div class="form-group compact-group" id="universal-visibility-group">
                     <label class="form-label">Visibility</label>
                     <label class="toggle-switch">
                         <input type="checkbox" id="universal-post-visibility" checked>
                         <span class="toggle-slider"></span>
-                        <span class="toggle-label" id="universal-visibility-label">Public</span>
+                        <span class="toggle-label" id="universal-visibility-label">共有</span>
                     </label>
                 </div>
                 
-                <button type="submit" class="btn-submit" id="universal-submit-btn">Publish</button>
+                <button type="submit" class="btn-submit" id="universal-submit-btn">投稿する</button>
             </form>
         </div>
     </div>

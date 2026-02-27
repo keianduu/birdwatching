@@ -59,7 +59,13 @@ h1, h2, h3 { font-family: 'Cormorant Garamond', serif; font-weight: 400; }
 .info-header { display: flex; justify-content: space-between; align-items: flex-start; position: relative; z-index: 20; }
 
 .logo { position: relative; display: inline-block; text-decoration: none; color: var(--text-main); line-height: 1; }
-.logo-text { font-size: 2.8rem; letter-spacing: 0.05em; display: block; }
+.logo-text { 
+    font-size: 2.8rem; 
+    letter-spacing: 0.05em; 
+    display: block; 
+    font-family: 'Cormorant Garamond', serif; /* 🌟 セリフ体を明示的に指定 */
+    /* font-style: italic; */ /* 💡 お好みでイタリックにするとさらに雑誌の表紙っぽくなります */
+}
 .logo-sub { display: block; font-family: 'Montserrat', sans-serif; font-size: 0.6rem; letter-spacing: 0.3em; margin-top: 0.5rem; color: var(--text-muted); }
 
 /* 鳥の往復アニメーション */
@@ -375,8 +381,28 @@ textarea.form-control { resize: vertical; min-height: 80px; line-height: 1.6; }
 .modal-content { background: var(--bg-color); width: 90%; max-width: 500px; padding: 3rem; border-radius: 4px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); transform: translateY(20px); transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); color: var(--text-main); position: relative; }
 .modal-overlay.is-active .modal-content { transform: translateY(0); }
 .modal-title { font-family: 'Cormorant Garamond', serif; font-size: 1.8rem; font-style: italic; margin-bottom: 2rem; }
-.modal-close { position: absolute; top: 1.5rem; right: 1.5rem; background: transparent; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted); transition: color 0.3s; }
-.modal-close:hover { color: var(--text-main); }
+.modal-close { 
+    position: absolute; 
+    top: 1.5rem; 
+    right: 1.5rem; 
+    background: var(--bg-color); /* 背景色をつける */
+    border: none; 
+    width: 40px; 
+    height: 40px; 
+    border-radius: 50%; /* 完全な丸にする */
+    font-size: 1.5rem; 
+    color: var(--text-main); 
+    cursor: pointer; 
+    z-index: 10; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* ふんわりとした影 */
+    transition: transform 0.3s ease; 
+}
+.modal-close:hover { 
+    transform: scale(1.1); /* ホバー時に少し大きくなる */
+}
 
 .modal-actions { display: flex; gap: 1rem; margin-top: 2rem; }
 .btn-cancel { flex: 1; padding: 1rem; background: transparent; border: 1px solid var(--line-color); color: var(--text-main); font-family: 'Montserrat', sans-serif; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; cursor: pointer; transition: 0.3s; border-radius: 2px; }
@@ -547,4 +573,193 @@ textarea.form-control { resize: vertical; min-height: 80px; line-height: 1.6; }
 @media (min-width: 1025px) {
     .tab-icon { display: none !important; }
     .mypage-tab-btn[data-tab="tab-gallery"] { display: none !important; }
+}
+
+/* =========================================
+   13. Compact Modal (POST画面のUI調整)
+========================================= */
+.compact-modal {
+    max-height: 90vh; /* ブラウザサイズが小さい場合は画面の90%を上限にする */
+    overflow-y: auto; /* はみ出た場合はスクロールさせる */
+    padding: 2.5rem !important; /* 余白を少し詰める */
+}
+.compact-modal .modal-title { margin-bottom: 1.5rem; font-size: 1.5rem; }
+.compact-group { margin-bottom: 1.2rem; }
+
+/* Upload Photoエリアのライトテーマ化 */
+.edit-image-preview.light-theme {
+    background: #f4f4f4; /* 一般的な明るいグレー */
+    border: 1px dashed var(--line-color);
+    height: 140px; /* 高さを抑える */
+}
+.edit-image-overlay.dark-text { color: var(--text-muted); }
+.edit-image-preview.light-theme:hover { background: #eaeaea; }
+.edit-image-preview.light-theme:hover img { opacity: 0.7; }
+
+/* セレクトボックスの調整 */
+select.form-control {
+    appearance: auto; /* プルダウンの矢印を表示 */
+    cursor: pointer;
+    color: var(--text-main);
+}
+
+/* =========================================
+   追加: 丸いアイコンの切り替えボタン (View Mode Floater)
+========================================= */
+/* 既存のカプセルメニューを少し上に持ち上げる */
+.view-toggle { bottom: 4.5rem !important; }
+
+/* 新しい丸ボタンのコンテナ */
+.view-mode-floater {
+    position: fixed;
+    bottom: 1.5rem;
+    left: 27.5%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+    z-index: 50;
+    transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 丸ボタンのデザイン */
+.view-mode-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: rgba(247, 245, 240, 0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid var(--line-color);
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+}
+
+.view-mode-btn svg { width: 18px; height: 18px; }
+
+/* アクティブ時のスタイル */
+.view-mode-btn:hover { color: var(--text-main); }
+.view-mode-btn.is-active {
+    background: var(--text-main);
+    color: var(--bg-color);
+    border-color: var(--text-main);
+}
+
+/* スマホ・タブレット用の中央揃え調整 */
+@media (max-width: 1024px) {
+    .view-mode-floater { left: 50%; }
+}
+
+/* =========================================
+   追加: 新しいカプセルメニュー (Pickup / Timeline / My Post) の調整
+========================================= */
+.view-toggle { 
+    padding: 0.3rem !important; /* 外枠の余白を少し詰める */
+    gap: 0.2rem; /* ボタン同士の隙間を詰める */
+    flex-wrap: nowrap; /* 絶対に2行に折り返させない */
+}
+
+.capsule-btn { 
+    background: transparent; 
+    border: none; 
+    padding: 0.6rem 1.2rem; 
+    border-radius: 50px; 
+    font-family: 'Montserrat', sans-serif; 
+    font-size: 0.75rem; 
+    letter-spacing: 0.05em; 
+    text-transform: uppercase; 
+    color: var(--text-muted); 
+    cursor: pointer; 
+    transition: all 0.3s ease; 
+    white-space: nowrap; /* 文字の折り返し防止 */
+}
+
+.capsule-btn.is-active { 
+    background-color: var(--text-main); 
+    color: var(--bg-color); 
+}
+
+/* スマホ用（画面幅が狭い時）の微調整 */
+@media (max-width: 600px) {
+    .capsule-btn { 
+        padding: 0.5rem 0.6rem; /* 左右の余白をさらに詰める */
+        font-size: 0.65rem; /* 文字サイズをわずかに小さく */
+        letter-spacing: 0; /* 文字間隔を詰める */
+    }
+}
+
+/* =========================================
+   修正: フローティングUIの横並びレイアウト (カプセル + 小カプセル)
+========================================= */
+/* 2つのカプセルをまとめる親コンテナ */
+.bottom-floating-wrapper {
+    position: fixed;
+    bottom: 2rem;
+    left: 27.5%; /* PC版の左カラム中央 */
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.8rem; /* カプセル同士の隙間 */
+    z-index: 50;
+    transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* 既存の view-toggle の位置固定を解除し、ラッパーに従わせる */
+.view-toggle {
+    position: relative !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0;
+}
+
+/* ギャラリー/マップ切り替え用の小カプセル */
+.view-mode-capsule {
+    display: flex;
+    background: rgba(247, 245, 240, 0.85);
+    backdrop-filter: blur(8px);
+    padding: 0.3rem;
+    border-radius: 50px;
+    border: 1px solid var(--line-color);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    gap: 0.2rem;
+}
+
+/* 小カプセル内のアイコンボタン */
+.view-mode-btn {
+    background: transparent;
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.view-mode-btn svg { width: 16px; height: 16px; }
+.view-mode-btn:hover { color: var(--text-main); }
+.view-mode-btn.is-active {
+    background: var(--text-main);
+    color: var(--bg-color);
+}
+
+/* スマホ・タブレット用の中央揃えとサイズ微調整 */
+@media (max-width: 1024px) {
+    .bottom-floating-wrapper { left: 50%; }
+}
+
+@media (max-width: 600px) {
+    .bottom-floating-wrapper {
+        bottom: 1.5rem;
+        gap: 0.5rem; /* 画面が狭いので隙間を少し詰める */
+    }
+    .view-mode-btn { width: 30px; height: 30px; }
+    .view-mode-btn svg { width: 14px; height: 14px; }
 }

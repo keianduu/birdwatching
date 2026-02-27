@@ -44,12 +44,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // 2. レビュー待ちギャラリーの生成 (components.js を利用)
     // =========================================
     const reviewGalleryContainer = document.getElementById('review-gallery-container');
-    const reviewPhotos = galleryData.slice(3, 8); 
+    
+    if (reviewGalleryContainer) {
+        const reviewPhotos = galleryData.slice(3, 8); 
 
-    reviewPhotos.forEach(data => {
-        const card = BirdUI.createCard(data, { mode: 'review' });
-        reviewGalleryContainer.appendChild(card);
-    });
+        reviewPhotos.forEach(data => {
+            const card = BirdUI.createCard(data, { mode: 'review' });
+            reviewGalleryContainer.appendChild(card);
+        });
+    }
 
     // =========================================
     // 3. Lightbox (通常 ＆ Review 兼用)
@@ -177,20 +180,25 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================================
     // 5. ギャラリー <-> マップ 切り替えと地図の生成
     // =========================================
-    const toggleBtns = document.querySelectorAll('.toggle-btn');
     const viewSections = document.querySelectorAll('.view-section');
     let mapInitialized = false;
     let birdMapInstance = null;
 
     function switchView(targetId) {
-        toggleBtns.forEach(b => b.classList.remove('is-active'));
-        document.querySelector(`.toggle-btn[data-target="${targetId}"]`).classList.add('is-active');
+        // 1. アイコンのアクティブ状態を切り替え
+        document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('is-active'));
+        const targetBtn = document.querySelector(`.view-mode-btn[data-target="${targetId}"]`);
+        if (targetBtn) {
+            targetBtn.classList.add('is-active');
+        }
         
+        // 2. セクション（ギャラリー/マップ）の表示切り替え
         viewSections.forEach(section => {
             section.classList.remove('is-active');
             if(section.id === targetId) section.classList.add('is-active');
         });
 
+        // 3. スマホ版のタブ状態更新（既存ロジック）
         if (window.innerWidth <= 1024) {
             const galleryTabBtn = document.querySelector('.mypage-tab-btn[data-tab="tab-gallery"]');
             if (galleryTabBtn && !galleryTabBtn.classList.contains('is-active')) {
@@ -201,8 +209,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         
+        // 4. 地図の遅延初期化とリサイズ処理
         setTimeout(() => {
-            ScrollTrigger.refresh(); 
+            if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh(); 
             if(targetId === 'view-area') {
                 if (!mapInitialized) {
                     initMap(); 
@@ -213,7 +222,15 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }, 100);
     }
-    toggleBtns.forEach(btn => { btn.addEventListener('click', () => switchView(btn.getAttribute('data-target'))); });
+    document.querySelectorAll('.view-mode-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault(); // 余計な挙動を防止
+            const target = this.getAttribute('data-target');
+            if (target) {
+                switchView(target);
+            }
+        });
+    });
 
     function initMap() {
         birdMapInstance = L.map('bird-map', { center: [35.6895, 139.6917], zoom: 11, minZoom: 10, maxZoom: 15, zoomControl: false, scrollWheelZoom: false, touchZoom: false, doubleClickZoom: false, boxZoom: false, keyboard: false });
@@ -407,10 +424,10 @@ document.addEventListener("DOMContentLoaded", () => {
         uniVisibilityToggle.addEventListener('change', function() {
             const label = document.getElementById('universal-visibility-label');
             if (this.checked) {
-                label.innerText = 'Public';
+                label.innerText = '共有';
                 label.style.color = 'var(--text-main)';
             } else {
-                label.innerText = 'Private';
+                label.innerText = '非公開';
                 label.style.color = 'var(--text-muted)';
             }
         });
@@ -421,28 +438,35 @@ document.addEventListener("DOMContentLoaded", () => {
         uniForm.reset();
         uniModeInput.value = mode;
         uniImgPreview.dataset.newImg = "";
+        document.getElementById('universal-visibility-label').innerText = '共有';
         
         if (mode === 'new') {
-            uniTitleEl.innerText = 'Create New Post';
-            uniSubmitBtn.innerText = 'Publish Post';
+            uniTitleEl.innerText = 'New Post';
+            uniSubmitBtn.innerText = '投稿する';
             uniVisibilityGroup.style.display = 'block';
             setupImagePreview(null);
             
         } else if (mode === 'quest') {
-            uniTitleEl.innerText = `${options.birdName} の写真を投稿`;
-            uniSubmitBtn.innerText = 'Publish & Clear Quest';
+            uniTitleEl.innerText = `${options.birdName} の記録`;
+            uniSubmitBtn.innerText = '投稿する';
             uniTargetInput.value = options.questId;
             uniVisibilityGroup.style.display = 'block';
             setupImagePreview(null);
             
         } else if (mode === 'edit') {
             uniTitleEl.innerText = 'Edit Post';
-            uniSubmitBtn.innerText = 'Save Changes';
+            uniSubmitBtn.innerText = '保存する';
             uniVisibilityGroup.style.display = 'none'; 
             currentEditItemRef = options.element;
             
-            document.getElementById('universal-post-title').value = currentEditItemRef.dataset.title;
-            document.getElementById('universal-post-location').value = currentEditItemRef.dataset.location;
+            // 既存タイトルの保持
+            document.getElementById('universal-post-title-hidden').value = currentEditItemRef.dataset.title;
+            
+            // セレクトボックスの復元（簡易）
+            const locParts = currentEditItemRef.dataset.location.split(' ');
+            document.getElementById('universal-post-pref').value = locParts[0] || '';
+            document.getElementById('universal-post-city').value = locParts[1] || '';
+            
             document.getElementById('universal-post-comment').value = currentEditItemRef.dataset.comment;
             setupImagePreview(currentEditItemRef.querySelector('img').src);
         }
@@ -461,7 +485,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // 画像選択
     uniImgPreview.addEventListener('click', () => document.getElementById('universal-image-input').click());
     document.getElementById('universal-image-input').addEventListener('change', function(e) {
         const file = e.target.files[0];
@@ -475,7 +498,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // 閉じる処理
     const closeModals = () => {
         if(uniModal) uniModal.classList.remove('is-active');
         document.getElementById('delete-modal').classList.remove('is-active');
@@ -491,6 +513,15 @@ document.addEventListener("DOMContentLoaded", () => {
     window.submitUniversalPost = function() {
         const mode = uniModeInput.value;
         const newImgSrc = uniImgPreview.dataset.newImg;
+        
+        // Locationの組み立て（未入力ならSecret Locationとする）
+        const pref = document.getElementById('universal-post-pref').value;
+        const city = document.getElementById('universal-post-city').value;
+        const newLocation = (pref || city) ? `${pref} ${city}`.trim() : 'Secret Location';
+
+        // Titleの自動生成（画面上から消えたため）
+        let newTitle = "野鳥の記録";
+        const questId = uniTargetInput.value;
 
         if (mode === 'new') {
             if(!newImgSrc) return alert("写真をアップロードしてください");
@@ -498,12 +529,12 @@ document.addEventListener("DOMContentLoaded", () => {
             
         } else if (mode === 'quest') {
             if(!newImgSrc) return alert("写真をアップロードしてください");
-            const questId = uniTargetInput.value;
             
             const questObj = questData.quests.find(q => q.id === questId);
             if(questObj) {
                 questObj.isDiscovered = true;
                 questObj.discoveredImg = newImgSrc;
+                newTitle = questObj.name; // クエストの場合は鳥の名前をタイトルにする
             }
             const card = document.getElementById(`card-${questId}`);
             if(card) {
@@ -515,12 +546,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 actionBtn.disabled = true;
             }
             if (typeof window.updateQuestProgress === 'function') window.updateQuestProgress();
-            showToast("Quest Cleared! 写真を投稿しました。");
+            showToast("投稿しました！");
             
         } else if (mode === 'edit') {
             if (currentEditItemRef) {
-                const newTitle = document.getElementById('universal-post-title').value;
-                const newLocation = document.getElementById('universal-post-location').value;
+                newTitle = document.getElementById('universal-post-title-hidden').value; // 既存タイトルを復元
                 const newComment = document.getElementById('universal-post-comment').value;
                 
                 currentEditItemRef.dataset.title = newTitle;
@@ -534,11 +564,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     currentEditItemRef.dataset.img = newImgSrc;
                     currentEditItemRef.querySelector(':scope > img').src = newImgSrc;
                 }
-                showToast("Post Updated Successfully!");
+                showToast("保存しました！");
             }
         }
         closeModals();
     };
+
+    // --- 各種トリガー ---
+    // (以降は元のコードのまま、open-new-post-btn のイベントなどへ続きます)
 
     // --- 各種トリガー ---
     document.getElementById('open-new-post-btn')?.addEventListener('click', () => openEditorModal('new'));
@@ -602,5 +635,53 @@ document.addEventListener("DOMContentLoaded", () => {
             }, 500); 
         });
     }
+    const capsuleBtns = document.querySelectorAll('.capsule-btn');
+    
+    capsuleBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // 1. アクティブ状態の切り替え
+            capsuleBtns.forEach(b => b.classList.remove('is-active'));
+            this.classList.add('is-active');
 
+            // 2. フィルタリングの実行
+            const filterType = this.getAttribute('data-filter');
+            // index.htmlとmypage.htmlの両方のギャラリーコンテナに対応
+            const items = document.querySelectorAll('#gallery-container .gallery-item, #my-gallery-container .gallery-item');
+            
+            items.forEach((item, index) => {
+                let shouldShow = false;
+                
+                if (filterType === 'pickup') {
+                    // モック: 最初の6件だけをPickup（エモい作品）として表示
+                    shouldShow = index < 6;
+                } else if (filterType === 'timeline') {
+                    // 全ての写真を表示
+                    shouldShow = true;
+                } else if (filterType === 'mypost') {
+                    // authorが Yuki.K (ログインユーザー) のものだけを表示
+                    shouldShow = item.getAttribute('data-author') === 'Yuki.K';
+                }
+
+                if (shouldShow) {
+                    item.style.display = 'block';
+                    gsap.fromTo(item, {opacity: 0, scale: 0.95}, {opacity: 1, scale: 1, duration: 0.4});
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // レイアウト崩れ防止のための再計算
+            setTimeout(() => {
+                if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+            }, 100);
+        });
+    });
+
+    // ページ読み込み時に、初期設定されているタブ(My Postなど)のフィルタリングを自動実行する
+    const initialActiveCapsule = document.querySelector('.capsule-btn.is-active');
+    if (initialActiveCapsule) {
+        initialActiveCapsule.click();
+    }
 });

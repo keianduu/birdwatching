@@ -75,10 +75,29 @@
                 </div>
             </section>
 
-            <nav class="view-toggle">
-                <button class="toggle-btn is-active" data-target="view-gallery" id="btn-gallery">Gallery</button>
-                <button class="toggle-btn" data-target="view-area" id="btn-area">Area</button>
-            </nav>
+            <div class="bottom-floating-wrapper">
+                
+                <nav class="view-toggle">
+                    <button class="capsule-btn" data-filter="pickup">Pickup</button>
+                    <button class="capsule-btn" data-filter="timeline">Timeline</button>
+                </nav>
+
+                <div class="view-mode-capsule">
+                    <button class="view-mode-btn is-active" data-target="view-gallery" title="Gallery View">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </button>
+                    <button class="view-mode-btn" data-target="view-area" title="Map View">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line>
+                        </svg>
+                    </button>
+                </div>
+
+            </div>
+
+
         </main>
 
         <aside class="right-info">

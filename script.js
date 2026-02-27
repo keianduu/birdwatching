@@ -45,9 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let mapInitialized = false;
 
     function switchView(targetId) {
-        toggleBtns.forEach(b => b.classList.remove('is-active'));
-        document.querySelector(`[data-target="${targetId}"]`).classList.add('is-active');
-        
+        document.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('is-active'));
+        const targetBtn = document.querySelector(`.view-mode-btn[data-target="${targetId}"]`);
+        if (targetBtn) {
+            targetBtn.classList.add('is-active');
+        }
         viewSections.forEach(section => {
             section.classList.remove('is-active');
             if(section.id === targetId) section.classList.add('is-active');
@@ -63,6 +65,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     toggleBtns.forEach(btn => {
         btn.addEventListener('click', () => switchView(btn.getAttribute('data-target')));
+    });
+
+    document.querySelectorAll('.view-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            switchView(btn.getAttribute('data-target'));
+        });
     });
 
     // =========================================
@@ -298,5 +306,54 @@ document.addEventListener("DOMContentLoaded", () => {
                 window.dispatchEvent(new Event('resize'));
             }, 500); 
         });
+    }
+    const capsuleBtns = document.querySelectorAll('.capsule-btn');
+    
+    capsuleBtns.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // 1. アクティブ状態の切り替え
+            capsuleBtns.forEach(b => b.classList.remove('is-active'));
+            this.classList.add('is-active');
+
+            // 2. フィルタリングの実行
+            const filterType = this.getAttribute('data-filter');
+            // index.htmlとmypage.htmlの両方のギャラリーコンテナに対応
+            const items = document.querySelectorAll('#gallery-container .gallery-item, #my-gallery-container .gallery-item');
+            
+            items.forEach((item, index) => {
+                let shouldShow = false;
+                
+                if (filterType === 'pickup') {
+                    // モック: 最初の6件だけをPickup（エモい作品）として表示
+                    shouldShow = index < 6;
+                } else if (filterType === 'timeline') {
+                    // 全ての写真を表示
+                    shouldShow = true;
+                } else if (filterType === 'mypost') {
+                    // authorが Yuki.K (ログインユーザー) のものだけを表示
+                    shouldShow = item.getAttribute('data-author') === 'Yuki.K';
+                }
+
+                if (shouldShow) {
+                    item.style.display = 'block';
+                    gsap.fromTo(item, {opacity: 0, scale: 0.95}, {opacity: 1, scale: 1, duration: 0.4});
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            // レイアウト崩れ防止のための再計算
+            setTimeout(() => {
+                if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+            }, 100);
+        });
+    });
+
+    // ページ読み込み時に、初期設定されているタブ(My Postなど)のフィルタリングを自動実行する
+    const initialActiveCapsule = document.querySelector('.capsule-btn.is-active');
+    if (initialActiveCapsule) {
+        initialActiveCapsule.click();
     }
 });
